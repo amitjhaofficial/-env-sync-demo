@@ -2,7 +2,7 @@ name: Sync Dev to UAT and QA
 
 on:
   pull_request:
-    branches: [dev]  # Change to [main] if you're working on main
+    branches: [dev]  # or [main], depending on where you test
     types: [closed]
 
 jobs:
@@ -28,7 +28,6 @@ jobs:
           sleep 5
           PR_URL=$(gh pr list --state open --base uat --head dev --json url -q '.[0].url')
           if [ -n "$PR_URL" ]; then
-            echo "Merging PR: $PR_URL"
             gh pr merge "$PR_URL" --merge --admin || echo "Merge failed"
           fi
 
@@ -39,6 +38,5 @@ jobs:
           sleep 5
           PR_URL=$(gh pr list --state open --base qa --head dev --json url -q '.[0].url')
           if [ -n "$PR_URL" ]; then
-            echo "Merging PR: $PR_URL"
             gh pr merge "$PR_URL" --merge --admin || echo "Merge failed"
           fi
