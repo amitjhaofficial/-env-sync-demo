@@ -1,0 +1,39 @@
+name: Sync Dev to UAT and QA
+
+on:
+  pull_request:
+    branches: [dev]
+    types: [closed]
+
+jobs:
+  sync-envs:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate GitHub CLI
+        run: |
+          echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
+
+      - name: Create and Merge PR from dev to uat
+        run: |
+          echo "Creating PR from dev to uat..."
+          gh pr create --base uat --head dev --title "Sync dev to uat" --body "Auto sync from dev to uat" || echo "PR already exists"
+          sleep 5
+          PR_URL=$(gh pr list --state open --base uat --head dev --json url -q '.[0].url')
+          if [ -n "$PR_URL" ]; then
+            gh pr merge "$PR_URL" --merge --admin || echo "Merge failed"
+          fi
+
+      - name: Create and Merge PR from dev to qa
+        run: |
+          echo "Creating PR from dev to qa..."
+          gh pr create --base qa --head dev --title "Sync dev to qa" --body "Auto sync from dev to qa" || echo "PR already exists"
+          sleep 5
+          PR_URL=$(gh pr list --state open --base qa --head dev --json url -q '.[0].url')
+          if [ -n "$PR_URL" ]; then
+            gh pr merge "$PR_URL" --merge --admin || echo "Merge failed"
+          fi
