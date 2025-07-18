@@ -2,7 +2,7 @@ name: Sync Dev to UAT and QA
 
 on:
   pull_request:
-    branches: [dev]
+    branches: [dev]  # Change to [main] if you're working on main
     types: [closed]
 
 jobs:
@@ -15,10 +15,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up GitHub CLI
-        uses: actions/setup-gh-cli@v4
+        uses: actions/setup-gh@v4
 
       - name: Authenticate GitHub CLI
-        run: echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
+        run: |
+          echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
 
       - name: Create and Merge PR: dev to uat
         run: |
@@ -27,6 +28,7 @@ jobs:
           sleep 5
           PR_URL=$(gh pr list --state open --base uat --head dev --json url -q '.[0].url')
           if [ -n "$PR_URL" ]; then
+            echo "Merging PR: $PR_URL"
             gh pr merge "$PR_URL" --merge --admin || echo "Merge failed"
           fi
 
@@ -37,5 +39,6 @@ jobs:
           sleep 5
           PR_URL=$(gh pr list --state open --base qa --head dev --json url -q '.[0].url')
           if [ -n "$PR_URL" ]; then
+            echo "Merging PR: $PR_URL"
             gh pr merge "$PR_URL" --merge --admin || echo "Merge failed"
           fi
