@@ -14,9 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up GitHub CLI
-        uses: cli/gh-action@v2
-
       - name: Authenticate GitHub CLI
         run: |
           echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
