@@ -40,3 +40,4 @@ jobs:
           if [ -n "$PR_URL" ]; then
             gh pr merge "$PR_URL" --merge --admin || echo "Merge failed"
           fi
+
