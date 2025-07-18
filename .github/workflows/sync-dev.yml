@@ -2,7 +2,7 @@ name: Sync Dev to UAT and QA
 
 on:
   pull_request:
-    branches: [dev]  # or [main], depending on where you test
+    branches: [dev]
     types: [closed]
 
 jobs:
@@ -21,20 +21,20 @@ jobs:
         run: |
           echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
 
-      - name: Create and Merge PR: dev to uat
+      - name: Create and Merge PR from dev to uat
         run: |
           echo "Creating PR from dev to uat..."
-          gh pr create --base uat --head dev --title "Sync dev to uat" --body "Automated sync from dev to uat" || echo "PR already exists or failed"
+          gh pr create --base uat --head dev --title "Sync dev to uat" --body "Auto sync from dev to uat" || echo "PR already exists"
           sleep 5
           PR_URL=$(gh pr list --state open --base uat --head dev --json url -q '.[0].url')
           if [ -n "$PR_URL" ]; then
             gh pr merge "$PR_URL" --merge --admin || echo "Merge failed"
           fi
 
-      - name: Create and Merge PR: dev to qa
+      - name: Create and Merge PR from dev to qa
         run: |
           echo "Creating PR from dev to qa..."
-          gh pr create --base qa --head dev --title "Sync dev to qa" --body "Automated sync from dev to qa" || echo "PR already exists or failed"
+          gh pr create --base qa --head dev --title "Sync dev to qa" --body "Auto sync from dev to qa" || echo "PR already exists"
           sleep 5
           PR_URL=$(gh pr list --state open --base qa --head dev --json url -q '.[0].url')
           if [ -n "$PR_URL" ]; then
